@@ -832,6 +832,12 @@ def test_enqueue_trial_skip_existing_allows_unfixed(
     [
         (["foo", "foo"], 1),
         ([1, 1], 1),
+        ([True, True], 1),
+        ([False, False], 1),
+        ([1, True], 2),
+        ([True, 1], 2),
+        ([0, False], 2),
+        ([False, 0], 2),
         ([100000, 100001], 2),
         ([-100000, -100001], 2),
         ([1.1, 1.1], 1),
