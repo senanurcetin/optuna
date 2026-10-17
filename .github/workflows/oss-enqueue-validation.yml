@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install pytest ruff scipy fakeredis grpcio
+          python -m pip install pytest ruff scipy 'fakeredis[lua]' grpcio grpcio-tools protobuf
       - name: Ruff checks
         run: |
           python -m ruff check optuna/study/study.py tests/study_tests/test_study.py
