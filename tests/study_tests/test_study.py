@@ -863,6 +863,30 @@ def test_enqueue_trial_skip_existing(
         assert len(study.trials) == expected_n_trials
 
 
+@pytest.mark.parametrize("storage_mode", STORAGE_MODES)
+@pytest.mark.parametrize(
+    "existing,new,expected_n_trials",
+    [
+        ({"flag": 1, "scale": 0.25}, {"flag": True, "scale": 0.25}, 2),
+        ({"flag": True, "scale": 0.25}, {"flag": 1, "scale": 0.25}, 2),
+        ({"flag": True, "scale": 0.25}, {"flag": True, "scale": 0.25}, 1),
+        ({"flag": True, "scale": 0.25}, {"flag": True, "scale": 0.5}, 2),
+    ],
+)
+def test_enqueue_trial_skip_existing_with_mixed_parameter_types(
+    storage_mode: str,
+    existing: dict[str, Any],
+    new: dict[str, Any],
+    expected_n_trials: int,
+) -> None:
+    with StorageSupplier(storage_mode) as storage:
+        study = create_study(storage=storage)
+        study.enqueue_trial(existing, skip_if_exists=True)
+        study.enqueue_trial(new, skip_if_exists=True)
+
+        assert len(study.trials) == expected_n_trials
+
+
 @patch("optuna.study._optimize.gc.collect")
 def test_optimize_with_gc(collect_mock: Mock) -> None:
     study = create_study()
