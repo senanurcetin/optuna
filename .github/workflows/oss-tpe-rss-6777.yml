@@ -1,0 +1,39 @@
+name: Fork Optuna RSS Attribution QA
+
+on:
+  push:
+    branches: ["qa/tpe-storage-rss-6777"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rss-attribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sampler: [random, tpe]
+        storage: [memory, journal]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Optuna and memory sampler
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . psutil
+      - name: Run isolated RSS probe
+        run: |
+          python benchmarks/tpe_storage_rss_probe.py \
+            --sampler ${{ matrix.sampler }} \
+            --storage ${{ matrix.storage }} \
+            --trials 150 --features 12 --interval 30 \
+            --output "rss-${{ matrix.sampler }}-${{ matrix.storage }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rss-${{ matrix.sampler }}-${{ matrix.storage }}
+          path: rss-${{ matrix.sampler }}-${{ matrix.storage }}.json
