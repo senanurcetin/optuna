@@ -27,6 +27,23 @@ the run as downloadable JSON artifacts.
 | TPE | InMemory | 49.605 | 52.055 | 2.450 | 0.688 |
 | TPE | Journal | 55.559 | 59.426 | 3.867 | 0.828 |
 
+## Repeat run
+
+A second independent run of the same matrix also succeeded:
+[GitHub Actions run 39604387159](https://github.com/senanurcetin/optuna/actions/runs/39604387159).
+The individual JSON artifacts remain accessible through that run.
+
+| Sampler | Storage | Second run RSS increase 0–150 (MiB) | Second run RSS increase 30–150 (MiB) |
+| --- | --- | ---: | ---: |
+| Random | InMemory | 0.875 | 0.473 |
+| Random | Journal | 1.786 | 0.575 |
+| TPE | InMemory | 2.336 | 0.684 |
+| TPE | Journal | 3.758 | 0.812 |
+
+Startup/initial allocations vary considerably, but post-warmup increases are
+similar across these two **short** repetitions. This is a screening experiment
+rather than a statistically powered memory-retention test.
+
 ## Interpretation / limitations
 
 RSS increases slightly in **all four** scenarios, including `RandomSampler`. Since
@@ -34,7 +51,7 @@ the initial resident sets differ across independently scheduled runners, compari
 the absolute initial or final RSS of two rows would be misleading.
 
 The increase after the first 30 trials is below 1 MiB in each scenario.
-With only 150 trials, one run per configuration, a single worker and a smaller
+With only 150 trials per run, two independent runs, a single worker and a smaller
 search space than the reported 36-parameter, multi-worker problem, these results
 **do not establish an unbounded memory leak, identify its owner, or refute #6777**.
 The experiment also cannot distinguish live references from allocator retention.
